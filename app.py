@@ -35,20 +35,64 @@ def after_request(response):
 
 @app.route("/register", methods=["GET","POST"])
 def register():
-    # If the user sumbited the form
+    # If the user submitted the form
     if request.method == "POST":
+        
         # If the user didn't provide a username
+        
         if not request.form.get("username"):
             return apology("MUST PROVIDE USERNAME",403)
+        
         # If the user didn't provide a password
+        
         if not request.form.get("password"):
             return apology("MUST PROVIDE PASSWORD",403)
+        
         # If the user didn't provide a email
+        
         if not request.form.get("email"):
             return apology("MUST PROVIDE EMAIL",403)    
+        
         # If the email is invalid
-        email = request.form.get()
-        if "." not in email or indices[i] <  or "@" not in email:
-                return apology("INVALID EMAIL",403)
-            
+        
+        email = request.form.get("email")
+        
+        if not email.count("@") == 1 or not email.count(".") == 1 or email.index("@") < email.index("."):
+            return apology("INVALID EMAIL",403)
+
+        # If the user didn't provide a password confirmation
+
+        if not request.form.get("confirmation"):
+            return apology("MUST PROVIDE CONFIRMATION",403)
+
+        # If the password and confirmation don't match
+
+        if not request.form.get("password") == request.form.get("confirmation"):
+            return apology("PASSWORDS DO NOT MATCH",403)
+
+        # If the username is already in use
+
+        if len(db.execute("SELECT * FROM users WHERE username = :username", username=request.form.get("username"))) != 0:
+            return apology("USERNAME ALREADY IN USE",403)
+        
+
+        # If the email is already in use
+
+        if len(db.execute("SELECT * FROM users WHERE email = :email", email=request.form.get("email"))) != 0:
+            return apology("EMAIL ALREADY IN USE",403)
+        
+        # Add username, password, and email to the database
+
+        db.execute("INSERT INTO users (username, hash, email) VALUES (:username, :hash, :email)", username=request.form.get("username"), hash=generate_password_hash(request.form.get("password")), email=request.form.get("email"))
+
+        
+    return render_template("register.html")
+
+
+
+
+
+
+
+
     
