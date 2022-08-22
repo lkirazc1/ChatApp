@@ -6,7 +6,7 @@ from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from helpers import apology, login_required, lookup, usd
+from helpers import apology, login_required
 
 # Configure application
 app = Flask(__name__)
@@ -15,7 +15,7 @@ app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 # Custom filter
-app.jinja_env.filters["usd"] = usd
+#app.jinja_env.filters["usd"] = usd
 
 # Configure session to use filesystem (instead of signed cookies)
 app.config["SESSION_PERMANENT"] = False
