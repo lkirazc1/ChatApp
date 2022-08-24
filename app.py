@@ -23,7 +23,7 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 # Configure CS50 Library to use SQLite database
-db = SQL("sqlite:///finance.db")
+db = SQL("sqlite:///chat.db")
 
 @app.after_request
 def after_request(response):
@@ -32,6 +32,11 @@ def after_request(response):
     response.headers["Expires"] = 0
     response.headers["Pragma"] = "no-cache"
     return response
+
+@app.route("/", methods=["GET", "POST"])
+@login_required
+def index():
+    pass
 
 @app.route("/register", methods=["GET","POST"])
 def register():
