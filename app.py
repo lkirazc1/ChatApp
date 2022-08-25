@@ -33,9 +33,12 @@ def after_request(response):
     response.headers["Pragma"] = "no-cache"
     return response
 
+@app.route("/", methods=["GET", "POST"])
+@login_required
+def index():
+    pass
 
-
-@app.route("/login", methods=["GET","POST"])
+@app.route("/register", methods=["GET","POST"])
 def register():
     # If the user submitted the form
     if request.method == "POST":

@@ -7,6 +7,9 @@
         <meta name="viewport" content="initial-scale=1, width=device-width">
 
         <link href="/static/signedoutlayoutstyles.css" rel="stylesheet">
+        {% block head %}
+        {% endblock %}
+
         <title>Quack Chat</title>
 
     </head>
@@ -18,10 +21,10 @@
         
             <nav>
                 <ul>
-                <li><a href="/signup">Sign up</a></li>
-                <li><a href="/login">Log in</a></li>
-                <li><a href="/about">About</a></li>
-                <li><a href="/contact">Contact</a></li>
+                <li><a href="/register" id="register">Register</a></li>
+                <li><a href="/login" id="login">Log in</a></li>
+                <li><a href="/about" id="about">About</a></li>
+                <li><a href="/contact" id="contact">Contact</a></li>
                 </ul>
             </nav>
             </div>
