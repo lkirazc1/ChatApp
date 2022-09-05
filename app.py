@@ -110,6 +110,24 @@ def register():
 def login():
     # If the user submitted the form
     if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        # If the user hasn't provided a username
+        if not username:
+            return apology("MUST PROVIDE USERNAME",403)
+        # If the password isn't provided
+        if not password:
+            return apology("MUST PROVIDE PASSWORD",403)
+        
+        rows = db.execute("SELECT * FROM users WHERE username = ?", username) 
+        
+        # If username doesn't exist
+        if rows == []:
+            return apology("INVALID USERNAME",403)
+        
+        # If password is incorrect
+        if check_password_hash(rows[0]["hash"]) != password:
+            return apology("INVALID PASSWORD",403)
         
         # Redirects the user to home page
         return redirect("/")
