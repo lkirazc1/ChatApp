@@ -108,7 +108,13 @@ def register():
 
 @app.route("/login", methods=["GET","POST"])
 def login():
-    pass
+    # If the user submitted the form
+    if request.method == "POST":
+        
+        # Redirects the user to home page
+        return redirect("/")
+    
+    return render_template("login.html")
 
 @app.route("/logout", methods=["GET","POST"])
 def logout():
