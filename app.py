@@ -109,3 +109,8 @@ def register():
 @app.route("/login", methods=["GET","POST"])
 def login():
     pass
+
+@app.route("/logout", methods=["GET","POST"])
+def logout():
+    pass
+
