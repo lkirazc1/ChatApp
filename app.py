@@ -1,4 +1,5 @@
 import os
+import re
 
 from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session
@@ -62,8 +63,10 @@ def register():
         
         email = request.form.get("email")
         
-        if not email.count("@") == 1 or not email.count(".") == 1 or email.index("@") < email.index("."):
-            return apology("INVALID EMAIL",403)
+        regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+        if not (re.fullmatch(regex, email)):
+            return apology("Invalid Email")
+    
 
         # If the user didn't provide a password confirmation
 
