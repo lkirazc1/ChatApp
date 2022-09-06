@@ -23,7 +23,7 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-# Configure CS50 Library to use SQLite database
+# Configure SQLite database
 connection = sqlite3.connect("chat.db")
 db = connection.cursor()
 
@@ -38,7 +38,7 @@ def after_request(response):
 @app.route("/", methods=["GET", "POST"])
 @login_required
 def index():
-    pass
+    return render_template("index.html")
 
 @app.route("/register", methods=["GET","POST"])
 def register():
@@ -130,11 +130,13 @@ def login():
             return apology("INVALID PASSWORD",403)
         
         # Redirects the user to home page
-        return redirect("/")
+        return render_template("index.html")
     
     return render_template("login.html")
 
+
 @app.route("/logout", methods=["GET","POST"])
+@login_required
 def logout():
     pass
 
