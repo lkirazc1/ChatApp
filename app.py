@@ -40,6 +40,12 @@ def after_request(response):
 def index():
     return render_template("index.html")
 
+
+@app.route("/forgot", methods=["GET", "POST"])
+def forgot():
+    return render_template("forgot.html")
+
+
 @app.route("/register", methods=["GET","POST"])
 def register():
     # If the user submitted the form
