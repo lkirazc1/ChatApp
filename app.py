@@ -38,6 +38,26 @@ def after_request(response):
 def index():
     pass
 
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "GET":
+        return render_template("login.html")
+    
+    username = request.form.get("username")
+    password = request.form.get("password")
+
+    rows = db.execute("SELECT * FROM users WHERE username = '%s'", username)
+    if rows != 1:
+        return apology("Username is incorrect or you do not have an account")
+    
+    if not check_password_hash(rows[0]["password"], password):
+        return apology("Username or password is incorrect")
+    
+    return redirect("/")
+
+
+
 @app.route("/register", methods=["GET","POST"])
 def register():
     # If the user submitted the form
