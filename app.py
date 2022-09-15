@@ -36,7 +36,13 @@ def after_request(response):
 @app.route("/", methods=["GET", "POST"])
 @login_required
 def index():
-    pass
+    if request.method == "GET":
+
+        chat_group_ids = db.execute("SELECT chat_group_id FROM chat_group_participants WHERE person_id = ?", session["user_id"])
+
+        return render_template("index.html", group_names=group_names)
+    
+
 
 
 @app.route("/login", methods=["GET", "POST"])
