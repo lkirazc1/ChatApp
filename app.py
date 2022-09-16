@@ -39,8 +39,17 @@ def index():
     if request.method == "GET":
 
         chat_group_ids = db.execute("SELECT chat_group_id FROM chat_group_participants WHERE person_id = ?", session["user_id"])
-
-        return render_template("index.html", group_names=group_names)
+        
+        messages = {}
+        group_names = []
+        for chat_group_id in chat_group_ids["chat_group_id"]:
+            group_messages = db.execute("SELECT message FROM messages WHERE chat_group_id = ?", chat_group_id["chat_group_id"])
+            messages[chat_group_id["chat_group_id"]] = []
+            for group_message in group_messages:
+                messages[chat_group_id["chat_group_id"]].append(group_message["message"])
+                
+            
+        return render_template("index.html", messages=messages, group_names=group_names)
     
 
 
