@@ -38,19 +38,36 @@ def after_request(response):
 def index():
     if request.method == "GET":
 
-        chat_group_ids = db.execute("SELECT chat_group_id FROM chat_group_participants WHERE person_id = ?", session["user_id"])
+        chat_groups = db.execute("SELECT * FROM chat_group_participants WHERE person_id = ?", session["user_id"])
+        if len(chat_groups) == 0:
+            return "You have no ongoing chats"
         
-        messages = {}
-        group_names = []
-        for chat_group_id in chat_group_ids["chat_group_id"]:
-            group_messages = db.execute("SELECT message FROM messages WHERE chat_group_id = ?", chat_group_id["chat_group_id"])
-            messages[chat_group_id["chat_group_id"]] = []
-            for group_message in group_messages:
-                messages[chat_group_id["chat_group_id"]].append(group_message["message"])
-                
+        message_dict = {}
+        group_names = {}
+
+        for chat_group_row in chat_groups:
+
+            chat_group_id = chat_group_row["chat_group_id"]
+
+            # Get all group names
+
+            group_name = db.execute("SELECT * FROM chat_groups WHERE id = ?", chat_group_id)[0]["group_name"]
+            group_names[chat_group_id] = group_name
+
+            # Add all messages to list inside dictionary. group_id: [message]
+
+            message_rows = db.execute("SELECT * FROM messages WHERE chat_group_id = ?", chat_group_id)
+
+            messages = []
+
+            for message_row in message_rows:
+                message = message_row["message"]
+                messages.append(message)
             
-        return render_template("index.html", messages=messages, group_names=group_names)
+            message_dict[chat_group_id] = messages
     
+        return render_template("index.html", message_dict, group_names)
+
 
 
 
@@ -62,13 +79,15 @@ def login():
     username = request.form.get("username")
     password = request.form.get("password")
 
-    rows = db.execute("SELECT * FROM users WHERE username = '%s'", username)
-    if rows != 1:
+    rows = db.execute("SELECT * FROM people WHERE username = ?", username)
+    if len(rows) != 1:
         return apology("Username is incorrect or you do not have an account")
     
-    if not check_password_hash(rows[0]["password"], password):
+    if not check_password_hash(rows[0]["password_hash"], password):
         return apology("Username or password is incorrect")
     
+    session["user_id"] = rows[0]["id"]
+
     return redirect("/")
 
 
@@ -88,17 +107,6 @@ def register():
         if not request.form.get("password"):
             return apology("MUST PROVIDE PASSWORD",403)
         
-        # If the user didn't provide a email
-        
-        if not request.form.get("email"):
-            return apology("MUST PROVIDE EMAIL",403)    
-        
-        # If the email is invalid
-        
-        email = request.form.get("email")
-        
-        if not email.count("@") == 1 or not email.count(".") == 1 or email.index("@") < email.index("."):
-            return apology("INVALID EMAIL",403)
 
         # If the user didn't provide a password confirmation
 
@@ -112,20 +120,22 @@ def register():
 
         # If the username is already in use
 
-        if len(db.execute("SELECT * FROM users WHERE username = :username", username=request.form.get("username"))) != 0:
+        if len(db.execute("SELECT * FROM people WHERE username = :username", username=request.form.get("username"))) != 0:
             return apology("USERNAME ALREADY IN USE",403)
         
 
         # If the email is already in use
 
-        if len(db.execute("SELECT * FROM users WHERE email = :email", email=request.form.get("email"))) != 0:
+        if len(db.execute("SELECT * FROM people WHERE username = :username", username=request.form.get("username"))) != 0:
             return apology("EMAIL ALREADY IN USE",403)
         
-        # Add username, password, and email to the database
+        # Add username, password, and username to the database
 
-        rows = db.execute("INSERT INTO users (username, hash, email) VALUES (:username, :hash, :email)", username=request.form.get("username"), hash=generate_password_hash(request.form.get("password")), email=request.form.get("email"))
+        db.execute("INSERT INTO people (display_name, password_hash, username) VALUES (:display_name, :password_hash, :username)", display_name=request.form.get("display_name"), username=request.form.get("username"), password_hash=generate_password_hash(request.form.get("password")))
 
         # Log user in and make user session
+
+        rows = db.execute("SELECT * FROM people WHERE username = ?", request.form.get("username"))
 
         session["user_id"] = rows[0]["id"]
 
