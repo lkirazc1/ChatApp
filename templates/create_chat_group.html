@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block main %}
+
+<form action="/create_chat_group" method="post">
+    <input type="text" id="chat_group_name" name="chat_group_name">
+    <fieldset>
+        <legend>Select contacts for the chat group</legend>
+        {% for person_id, display_name in people %}
+            <label for="{{person_id}}">{{display_name}}</label>
+            <input type="checkbox" name="people" value="{{person_id}}">
+        {% endfor %}
+    </fieldset>
+    <input type="submit" value="Submit">
+</form>
+
+{% endblock %}
