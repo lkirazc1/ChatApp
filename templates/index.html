@@ -4,4 +4,66 @@
 
 {% block main %}
 
+<ul>
+    {% for group_id in group_names %}
+        <li><a href="#" onclick="load_messages_for_kool_kids({{group_id}})">{{group_names[group_id]}}</a></li>
+    {% endfor %}
+</ul>
+<ul id="messages">
+</ul>
+
+<form action="" method="post" id="message_form" onsubmit="send_message(); return false">
+    <input type="text" id="message" name="message">
+    <input type="submit" value="Submit">
+</form>
+
+
+
+
+<script>
+    let message_dict = {{message_dict|tojson|safe}};
+    let current_group = null;
+    function load_messages(group_id) 
+    {
+        console.log("group pressed " + group_id);
+        let messages = message_dict[group_id];
+        let ul = document.getElementById("messages");
+        let li;
+        for (let message of messages) {
+            console.log("Message: " + message);
+            ul.innerHTML += "<ul>" + message + "</ul>";
+        }
+    }
+    function send_message(group_id)
+    {
+        if (current_group == null) {
+            return;
+        }
+        let req = new XMLHttpRequest();
+        let message = document.getElementById("message").value
+        json_message = {"message" : message}
+        console.log("form data: " + JSON.stringify(json_message))
+        req.open("POST", "/new_message/" + current_group, true)
+        req.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+        req.send(JSON.stringify(json_message));
+    }
+
+    function load_messages_for_kool_kids(group_id) {
+        const req = new XMLHttpRequest();
+        req.onload = function () {
+            console.log("Got " + this.responseText);
+            let messages = JSON.parse(this.responseText)["message_rows"];
+            let ul = document.getElementById("messages");
+            ul.innerHTML = ''
+            for (let message of messages) {
+                console.log("Message: " + message["message"]);
+                ul.innerHTML += "<li>" + message["message"] + "</li>";
+            }
+            ul.innerHTML += "";
+        };
+        current_group = group_id;
+        req.open("GET", "/messages/" + group_id);
+        req.send();
+    }
+</script>
 {% endblock %}
